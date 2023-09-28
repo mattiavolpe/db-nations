@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Main {
@@ -36,14 +35,65 @@ public class Main {
 				String resRow = res.getString(1) + " | " + res.getInt(2) + " | " + res.getString(3) + " | " + res.getString(4);
 				
 				if (resRow.toLowerCase().contains(searchFilter.toLowerCase())) {
-					System.out.println(resRow);
+					System.out.println("\n" + resRow + "\n");
 					System.out.println("----------------------------------------");
 				}
 			}
 			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.print("\n\nEnter the ID of a country you want to know more about: ");
+			int idFilter = Integer.valueOf(sc.nextLine());
+			
+			PreparedStatement languages = con.prepareStatement("SELECT c.name, l.`language` "
+					+ "FROM countries c "
+					+ "JOIN country_languages cl "
+					+ "ON c.country_id = cl.country_id "
+					+ "JOIN languages l "
+					+ "ON cl.language_id = l.language_id "
+					+ "WHERE c.country_id = ?;");
+			
+			languages.setInt(1, idFilter);
+			
+			res = languages.executeQuery();
+			
+			int counter = 0;
+			String languagesString = "Languages: ";
+			
+			while(res.next()) {
+				if (counter == 0) {
+					System.out.println("\n\nDetails for country: " + res.getString(1) + "\n");
+					languagesString += res.getString(2);
+				} else {
+					languagesString += ", " + res.getString(2);
+				}
+				
+				counter++;
+			}
+			
+			System.out.println(languagesString + "\n");
+			
+			PreparedStatement stats = con.prepareStatement("SELECT cs.year, cs.population, cs.gdp "
+					+ "FROM country_stats cs "
+					+ "WHERE cs.country_id = ? "
+					+ "AND cs.year = ("
+					+ "SELECT MAX(cs2.year) "
+					+ "FROM country_stats cs2 "
+					+ "WHERE cs2.country_id = ? "
+					+ ");");
+			
+			stats.setInt(1, idFilter);
+			stats.setInt(2, idFilter);
+			
+			res = stats.executeQuery();
+			
+			while(res.next()) {
+				System.out.println("Most recent stats\n"
+						+ "Year: " + res.getInt(1) + "\n"
+						+ "Population: " + res.getLong(2) + "\n"
+						+ "GDP: " + res.getLong(3));
+			}
+			
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
 		}
 	}
 }
