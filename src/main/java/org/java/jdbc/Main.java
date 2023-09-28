@@ -80,14 +80,10 @@ public class Main {
 			PreparedStatement stats = con.prepareStatement("SELECT cs.year, cs.population, cs.gdp "
 					+ "FROM country_stats cs "
 					+ "WHERE cs.country_id = ? "
-					+ "AND cs.year = ("
-					+ "SELECT MAX(cs2.year) "
-					+ "FROM country_stats cs2 "
-					+ "WHERE cs2.country_id = ? "
-					+ ");");
+					+ "ORDER BY cs.year DESC "
+					+ "LIMIT 1;");
 			
 			stats.setInt(1, idFilter);
-			stats.setInt(2, idFilter);
 			
 			res = stats.executeQuery();
 			
