@@ -21,6 +21,7 @@ public class Main {
 			System.out.print("Do you want to enter a filter?\nIf yes type it, if no just press 'Enter': ");
 			String searchFilter = sc.nextLine();
 			
+//			QUERY FOR ALL COUNTRIES
 			PreparedStatement sql = con.prepareStatement("SELECT c.name, c.country_id, r.name, c2.name "
 					+ "FROM countries c "
 					+ "JOIN regions r "
@@ -34,6 +35,7 @@ public class Main {
 			while(res.next()) {
 				String resRow = res.getString(1) + " | " + res.getInt(2) + " | " + res.getString(3) + " | " + res.getString(4);
 				
+//				SEARCH FOR FILTER NOT ONLY IN COUNTRY NAME
 				if (resRow.toLowerCase().contains(searchFilter.toLowerCase())) {
 					System.out.println("\n" + resRow + "\n");
 					System.out.println("----------------------------------------");
@@ -43,6 +45,9 @@ public class Main {
 			System.out.print("\n\nEnter the ID of a country you want to know more about: ");
 			int idFilter = Integer.valueOf(sc.nextLine());
 			
+			sc.close();
+			
+//			QUERY FOR COUNTRY LANGUAGES
 			PreparedStatement languages = con.prepareStatement("SELECT c.name, l.`language` "
 					+ "FROM countries c "
 					+ "JOIN country_languages cl "
@@ -71,6 +76,7 @@ public class Main {
 			
 			System.out.println(languagesString + "\n");
 			
+//			COUNTRY FOR RECENT STATS
 			PreparedStatement stats = con.prepareStatement("SELECT cs.year, cs.population, cs.gdp "
 					+ "FROM country_stats cs "
 					+ "WHERE cs.country_id = ? "
